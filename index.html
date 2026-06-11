@@ -539,7 +539,7 @@ footer {
         <div class="form-box">
           <h3>Parliamo del tuo progetto</h3>
           <p class="fsub">Risposta tecnica entro 48 ore, senza impegno.</p>
-          <form id="pf" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" onsubmit="sp(event)">
+          <form id="pf" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" onsubmit="inviaPreventivo(event)">
             <input type="hidden" name="_subject" value="Nuova richiesta preventivo — Tecnostrutture Italia">
             <div class="f-row">
               <div class="f-f"><label>Nome *</label><input type="text" name="nome" placeholder="Mario" required></div>
@@ -693,6 +693,53 @@ function sp(e){
       alert('Errore nell\'invio. Riprova o contattaci direttamente.');
     });
 }
+</script>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCziLeTlGq7c8lRQpqIGebdCrMqYIgGwrc",
+    authDomain: "tecnostrutture-9dfc7.firebaseapp.com",
+    projectId: "tecnostrutture-9dfc7",
+    storageBucket: "tecnostrutture-9dfc7.firebasestorage.app",
+    messagingSenderId: "130495156978",
+    appId: "1:130495156978:web:5938585b0c5cdfc223366b",
+    measurementId: "G-H6NYGFF1VS"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window.inviaPreventivo = async function(event) {
+    event.preventDefault();
+    const form = document.getElementById('pf');
+    const btn = form.querySelector('.f-btn');
+    btn.textContent = 'Invio in corso...';
+    btn.disabled = true;
+
+    try {
+      await addDoc(collection(db, "preventivi"), {
+        nome: form.nome.value,
+        cognome: form.cognome.value,
+        email: form._replyto.value,
+        telefono: form.telefono.value,
+        tipo_struttura: form.tipo_struttura.value,
+        messaggio: form.messaggio.value,
+        timestamp: serverTimestamp()
+      });
+      document.getElementById('okbox').style.display = 'block';
+      form.reset();
+      document.getElementById('filetxt').textContent = 'Trascina un file qui oppure sfoglia';
+    } catch(e) {
+      alert('Errore nell'invio. Riprova o contattaci direttamente.');
+      console.error(e);
+    }
+    btn.textContent = 'Invia richiesta →';
+    btn.disabled = false;
+  };
 </script>
 </body>
 </html>
